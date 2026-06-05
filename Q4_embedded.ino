@@ -1,44 +1,84 @@
-int sensorPin = A0;
+/*
+========================================================
+  Smart Analog Level LED Indicator System
+  -------------------------------------------------------
+  Description:
+  This system reads an analog input signal (simulated
+  using a potentiometer in Tinkercad) and lights up
+  different LEDs based on the input range.
 
-int redLED = 8;
-int yellowLED = 9;
-int greenLED = 10;
+  It demonstrates:
+  - Sensor input (Analog signal)
+  - Control flow (if-else conditions)
+  - Output devices (LEDs)
+  - Real-time embedded system behavior
+========================================================
+*/
 
-int value = 0;
+// ----------------------
+// Pin Definitions
+// ----------------------
+int sensorPin = A0;     // Analog input pin (potentiometer / sound sensor)
 
+int redLED = 8;         // Low level indicator
+int yellowLED = 9;      // Medium level indicator
+int greenLED = 10;      // High level indicator
+
+int value = 0;          // Stores analog reading
+
+// ----------------------
+// Setup function (runs once)
+// ----------------------
 void setup()
 {
+  // Set LED pins as OUTPUT
   pinMode(redLED, OUTPUT);
   pinMode(yellowLED, OUTPUT);
   pinMode(greenLED, OUTPUT);
 
+  // Start serial communication (for debugging)
   Serial.begin(9600);
 }
 
+// ----------------------
+// Main loop (runs forever)
+// ----------------------
 void loop()
 {
+  // Read analog input from sensor (0 - 1023)
   value = analogRead(sensorPin);
 
+  // Print value to Serial Monitor (for testing)
+  Serial.print("Sensor Value: ");
   Serial.println(value);
 
-  // turn everything off first
+  // Turn OFF all LEDs before deciding
   digitalWrite(redLED, LOW);
   digitalWrite(yellowLED, LOW);
   digitalWrite(greenLED, LOW);
 
-  // map potentiometer (0–1023) to your ranges
-  if(value >= 0 && value <= 340)
+  // ----------------------
+  // Decision Making Logic
+  // ----------------------
+
+  // Low range → Red LED ON
+  if (value >= 0 && value <= 340)
   {
     digitalWrite(redLED, HIGH);
   }
-  else if(value > 340 && value <= 680)
+
+  // Medium range → Yellow LED ON
+  else if (value > 340 && value <= 680)
   {
     digitalWrite(yellowLED, HIGH);
   }
+
+  // High range → Green LED ON
   else
   {
     digitalWrite(greenLED, HIGH);
   }
 
+  // Small delay for stability
   delay(100);
 }
