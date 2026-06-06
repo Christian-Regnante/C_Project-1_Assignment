@@ -1,0 +1,36 @@
+BEGIN
+
+SET Red_LED to Pin 8
+SET Green_LED to Pin 5
+SET Blue_LED to Pin 6
+
+WHILE system is running
+
+    READ distance from Ultrasonic Sensor
+
+    TURN OFF all LED colors
+
+    IF distance <= 112 cm THEN
+        TURN ON Green_LED
+
+    ELSE IF distance <= 224 cm THEN
+        TURN ON Red_LED
+        TURN ON Green_LED
+        // Produces Yellow
+
+    ELSE IF distance <= 335.9 cm THEN
+        TURN ON Red_LED
+
+    ELSE
+        TURN ON Red_LED
+        TURN ON Green_LED
+        TURN ON Blue_LED
+        // Produces White
+
+    END IF
+
+    WAIT 100 ms
+
+END WHILE
+
+END
