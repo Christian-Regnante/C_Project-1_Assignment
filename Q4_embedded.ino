@@ -1,84 +1,109 @@
 /*
-========================================================
-  Smart Analog Level LED Indicator System
-  -------------------------------------------------------
-  Description:
-  This system reads an analog input signal (simulated
-  using a potentiometer in Tinkercad) and lights up
-  different LEDs based on the input range.
+====================================================
+ Smart Distance Guidance Indicator System
+====================================================
 
-  It demonstrates:
-  - Sensor input (Analog signal)
-  - Control flow (if-else conditions)
-  - Output devices (LEDs)
-  - Real-time embedded system behavior
-========================================================
+ Sensor:
+ - Ultrasonic Distance Sensor
+
+ Controller:
+ - Arduino Uno
+
+ Actuator:
+ - RGB LED
+
+ Function:
+ - Green  : Object is close
+ - Yellow : Object is medium distance
+ - Red    : Object is far
+ - White  : Object is out of monitoring range
+
+====================================================
 */
 
-// ----------------------
-// Pin Definitions
-// ----------------------
-int sensorPin = A0;     // Analog input pin (potentiometer / sound sensor)
+int cm = 0;
 
-int redLED = 8;         // Low level indicator
-int yellowLED = 9;      // Medium level indicator
-int greenLED = 10;      // High level indicator
+// RGB LED pins
+const int redPin = 10;
+const int greenPin = 8;
+const int bluePin = 9;
 
-int value = 0;          // Stores analog reading
-
-// ----------------------
-// Setup function (runs once)
-// ----------------------
-void setup()
+/*
+  Reads distance from ultrasonic sensor
+*/
+long readUltrasonicDistance(int triggerPin, int echoPin)
 {
-  // Set LED pins as OUTPUT
-  pinMode(redLED, OUTPUT);
-  pinMode(yellowLED, OUTPUT);
-  pinMode(greenLED, OUTPUT);
+  pinMode(triggerPin, OUTPUT);
 
-  // Start serial communication (for debugging)
-  Serial.begin(9600);
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(10);
+
+  digitalWrite(triggerPin, LOW);
+
+  pinMode(echoPin, INPUT);
+
+  return pulseIn(echoPin, HIGH);
 }
 
-// ----------------------
-// Main loop (runs forever)
-// ----------------------
+/*
+  Turns off all LED colors
+*/
+void turnOffLED()
+{
+  digitalWrite(redPin, LOW);
+  digitalWrite(greenPin, LOW);
+  digitalWrite(bluePin, LOW);
+}
+
+void setup()
+{
+  Serial.begin(9600);
+
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+}
+
 void loop()
 {
-  // Read analog input from sensor (0 - 1023)
-  value = analogRead(sensorPin);
+  // Read distance in centimeters
+  cm = 0.01723 * readUltrasonicDistance(7, 7);
 
-  // Print value to Serial Monitor (for testing)
-  Serial.print("Sensor Value: ");
-  Serial.println(value);
+  Serial.print("Distance: ");
+  Serial.print(cm);
+  Serial.println(" cm");
 
-  // Turn OFF all LEDs before deciding
-  digitalWrite(redLED, LOW);
-  digitalWrite(yellowLED, LOW);
-  digitalWrite(greenLED, LOW);
+  turnOffLED();
 
-  // ----------------------
-  // Decision Making Logic
-  // ----------------------
-
-  // Low range → Red LED ON
-  if (value >= 0 && value <= 340)
+  // Close distance
+  if(cm >= 0 && cm <= 112)
   {
-    digitalWrite(redLED, HIGH);
+    digitalWrite(greenPin, HIGH);
   }
 
-  // Medium range → Yellow LED ON
-  else if (value > 340 && value <= 680)
+  // Medium distance
+  else if(cm > 113 && cm <= 224)
   {
-    digitalWrite(yellowLED, HIGH);
+    digitalWrite(redPin, HIGH);
+    digitalWrite(greenPin, HIGH);
   }
 
-  // High range → Green LED ON
+  // Far distance
+  else if(cm > 225 && cm <= 335.9)
+  {
+    digitalWrite(redPin, HIGH);
+  }
+
+  // Out of range
   else
   {
-    digitalWrite(greenLED, HIGH);
+    digitalWrite(redPin, HIGH);
+    digitalWrite(greenPin, HIGH);
+    digitalWrite(bluePin, HIGH);
   }
 
-  // Small delay for stability
   delay(100);
 }
